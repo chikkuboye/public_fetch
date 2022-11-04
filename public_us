@@ -1,0 +1,26 @@
+import requests
+import sys
+import mysql.connector
+import json
+
+try:
+    mydb = mysql.connector.connect(host = 'localhost' , user = 'root' , password = '' , database = 'userdb')
+except mysql.connector.Error as e:
+    sys.exit(e)
+
+mycursor = mydb.cursor()
+
+data = requests.get("https://api.publicapis.org/entries").text
+
+data_info = json.loads(data)
+#data1 = {"entries":[{"API":"AdoptAPet","Description":"Resource to help get pets adopted","Auth":"apiKey","HTTPS":True,"Cors":"yes","Link":"https://www.adoptapet.com/public/apis/pet_list.html","Category":"Animals"},{"API":"Axolotl","Description":"Collection of axolotl pictures and facts","Auth":"","HTTPS":True,"Cors":"no","Link":"https://theaxolotlapi.netlify.app/","Category":"Animals"},{"API":"Cat Facts","Description":"Daily cat facts","Auth":"","HTTPS":True,"Cors":"no","Link":"https://alexwohlbruck.github.io/cat-facts/","Category":"Animals"},{"API":"Cataas","Description":"Cat as a service (cats pictures and gifs)","Auth":"","HTTPS":True,"Cors":"no","Link":"https://cataas.com/","Category":"Animals"},{"API":"Cats","Description":"Pictures of cats from Tumblr","Auth":"apiKey","HTTPS":True,"Cors":"no","Link":"https://docs.thecatapi.com/","Category":"Animals"},{"API":"Dog Facts","Description":"Random dog facts","Auth":"","HTTPS":True,"Cors":"yes","Link":"https://dukengn.github.io/Dog-facts-API/","Category":"Animals"}]}
+
+
+
+for i in data_info["entries"]:
+    http = str(i['HTTPS'])
+    sql = "INSERT INTO `public`(`api`, `Description`, `auth`, `https`, `cors`, `link`, `Category`) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+    data = (i['API'],i['Description'],i['Auth'],http,i['Cors'],i['Link'],i['Category'])
+    mycursor.execute(sql,data)
+    mydb.commit()
+    print('Inserted sucessfully')
